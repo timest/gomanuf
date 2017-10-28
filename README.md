@@ -9,7 +9,7 @@ go get -u github.com/timest/gomanuf
 ## 使用[Usage]
 ```
 import (
-    "github.com/timest/manuf"
+    manuf "github.com/timest/gomanuf"
     "log"
 )
 
