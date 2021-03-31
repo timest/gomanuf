@@ -1,32 +1,51 @@
 package manuf
 
 import (
-    "os"
-    "bufio"
-    "strings"
-    "io"
-    "strconv"
-    "runtime"
-    "path"
+	"bufio"
+	"io"
+	"net/http"
+	"os"
+	"strconv"
+	"strings"
 )
 
 const hexDigit = "0123456789ABCDEF"
 
 var d map[int]interface{}
 
+const ManufSource = "https://code.wireshark.org/review/gitweb?p=wireshark.git;a=blob_plain;f=manuf"
+
 func init() {
-    d = make(map[int]interface{})
-    _, file, _, _ := runtime.Caller(0)
-    f := path.Join(path.Dir(file), "manuf")
-    err := readLine(f, func(s string) {
-        l := strings.Split(s, "\t")
-        if len(l) > 2 {
-            parse(l[0], l[2])
-        }
-    })
-    if err != nil {
-        panic(err)
-    }
+	if _, err := os.Stat(".manuf"); os.IsNotExist(err) {
+		if DownloadManuf() != nil {
+			panic(err)
+		}
+	}
+	d = make(map[int]interface{})
+	err := readLine(".manuf", func(s string) {
+		l := strings.Split(s, "\t")
+		if len(l) > 2 {
+			parse(l[0], l[2])
+		}
+	})
+	if err != nil {
+		panic(err)
+	}
+}
+
+func DownloadManuf() error {
+	resp, err := http.Get(ManufSource)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	out, err := os.Create(".manuf")
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	_, err = io.Copy(out, resp.Body)
+	return err
 }
 
 func parse(mac, comment string) {
@@ -88,4 +107,3 @@ func readLine(fileName string, handler func(string)) error {
     }
     return nil
 }
-
