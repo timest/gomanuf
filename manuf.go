@@ -13,7 +13,7 @@ const hexDigit = "0123456789ABCDEF"
 
 var d map[int]interface{}
 
-const ManufSource = "https://code.wireshark.org/review/gitweb?p=wireshark.git;a=blob_plain;f=manuf"
+const ManufSource = "https://raw.githubusercontent.com/wireshark/wireshark/master/manuf"
 
 func init() {
 	if _, err := os.Stat(".manuf"); os.IsNotExist(err) {
